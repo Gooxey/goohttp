@@ -10,7 +10,7 @@ publish = true
 repository = "https://github.com/Gooxey/goohttp.git"
 
 [features]
-default = ["esp"]
+default = []
 esp = [
     "dep:goolog",
     "dep:http",
