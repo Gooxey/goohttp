@@ -1,0 +1,26 @@
+[package]
+name = "goohttp"
+version = "0.1.0"
+description = "Http-server for embedded systems and macros for easy axum routes."
+authors = ["Gooxey <dennis.tiderko@gmail.com>"]
+edition = "2021"
+license = "MIT"
+readme = "README.md"
+publish = true
+repository = "https://github.com/Gooxey/goohttp.git"
+
+[features]
+default = ["esp"]
+esp = [
+    "dep:goolog",
+    "dep:http",
+    "dep:hyper",
+    "dep:tokio"
+]
+
+[dependencies]
+axum = { version = "0.6.18", default-features = false }
+goolog = { version = "0.3.0", default-features = false, features = ["esp"], optional = true }
+http = { version = "0.2.9", optional = true }
+hyper = { version = "0.14.26", optional = true }
+tokio = { version = "1.28.2", features = ["rt"], optional = true }
