@@ -30,4 +30,4 @@ CONFIG_PTHREAD_TASK_STACK_SIZE_DEFAULT=10000
 ### Reducing binary size
 
 When using this library and other libraries, you may encounter another problem: you run out of memory. To fix this, you need to change some compiler settings. For that, I
-would suggest to have a look at [`this`](https://github.com/johnthagen/min-sized-rust) and [`this guide`](https://docs.rust-embedded.org/book/unsorted/speed-vs-size.html).
+would suggest to have a look at [this](https://github.com/johnthagen/min-sized-rust) and [this guide](https://docs.rust-embedded.org/book/unsorted/speed-vs-size.html).

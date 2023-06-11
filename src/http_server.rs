@@ -14,6 +14,7 @@ use std::{
         TcpStream,
         ToSocketAddrs,
     },
+    time::Duration,
 };
 
 use axum::Router;
@@ -32,6 +33,7 @@ use hyper::{
 use tokio::{
     spawn,
     task::JoinHandle,
+    time::sleep,
 };
 
 /// When developing for embedded systems, you cannot, as of now, use asynchronous TcpListeners and thus
@@ -61,6 +63,15 @@ use tokio::{
 /// When using this library and other libraries, you may encounter another problem: you run out of memory. To fix this, you need to change some compiler settings. For that, I
 /// would suggest to have a look at [`this`](https://github.com/johnthagen/min-sized-rust) and [`this guide`](https://docs.rust-embedded.org/book/unsorted/speed-vs-size.html).
 ///
+/// # Known Bug
+///
+/// When connecting to this HttpServer, it can happen that the connection just blocks and never processes the request. To reduce the probability of this happing you can
+/// increase the following value in your `sdkconfig.defaults` which should have been generated when you used [this ESP32 template](https://github.com/esp-rs/esp-idf-template):
+///
+/// ```text
+/// CONFIG_FREERTOS_HZ=1000
+/// ```
+///
 /// # How to use this HttpServer
 ///
 /// First, you will need a [`Router`]. You can use the macros from this library:
@@ -80,7 +91,7 @@ use tokio::{
 ///                        // Only after calling it, we can get our router.
 ///
 /// let http_server = HttpServer::bind("0.0.0.0:80");
-/// http_server.serve(router);
+/// http_server.serve(router).unwrap();
 /// ```
 pub struct HttpServer {
     /// The address that the internal TcpListener will use.
@@ -89,15 +100,34 @@ pub struct HttpServer {
     main_task: Option<JoinHandle<()>>,
     /// The name of this HttpServer, which gets used in log messages.
     name: String,
+    /// The time this HttpServer sleeps between two [accept()](TcpListener::accept) calls.
+    refresh_rate: Duration,
 }
 impl HttpServer {
     /// Create and set an address for a new HttpServer.
-    pub fn bind<A: ToSocketAddrs>(addr: A, name: Option<&str>) -> Self {
+    ///
+    /// # Default values
+    ///
+    /// | Identifier   | Value        | Description                                                                        |
+    /// |--------------|--------------|------------------------------------------------------------------------------------|
+    /// | name         | "HttpServer" | The name of this HttpServer, which gets used in log messages.                      |
+    /// | refresh_rate | 10ms         | The time this HttpServer sleeps between two [accept()](TcpListener::accept) calls. |
+    pub fn bind<A: ToSocketAddrs>(
+        addr: A,
+        name: Option<&str>,
+        refresh_rate: Option<Duration>,
+    ) -> Self {
         let final_name;
         if let Some(name) = name {
             final_name = name.to_string();
         } else {
             final_name = "HttpServer".to_string();
+        }
+        let final_refresh_rate;
+        if let Some(refresh_rate) = refresh_rate {
+            final_refresh_rate = refresh_rate;
+        } else {
+            final_refresh_rate = Duration::from_millis(1);
         }
 
         Self {
@@ -115,12 +145,13 @@ impl HttpServer {
                 }),
             main_task: None,
             name: final_name,
+            refresh_rate: final_refresh_rate,
         }
     }
     /// This method will close the internal TCPListener and all of its connections by killing the task they are running on. \
     /// If this HttpServer was already offline, this method will do nothing.
-    pub async fn shutdown(&self) {
-        if let Some(main_task) = &self.main_task {
+    pub async fn shutdown(&mut self) {
+        if let Some(main_task) = self.main_task.take() {
             main_task.abort();
 
             info!(self.name, "Stopped.");
@@ -136,22 +167,41 @@ impl HttpServer {
     pub fn serve(&mut self, router: Router) -> io::Result<()> {
         info!(self.name, "Starting...");
 
-        let tcp_listener = TcpListener::bind(self.addr)?;
+        let tcp_listener;
+        match TcpListener::bind(self.addr) {
+            Ok(listener) => tcp_listener = listener,
+            Err(error) => {
+                error!(
+                    self.name,
+                    "An error occurred while binding the TcpListener. Error: {error}"
+                );
+                return Err(error);
+            }
+        }
 
         info!(self.name, "Started! Now listening for clients...");
 
         let name = self.name.clone();
+        let refresh_rate = self.refresh_rate.clone();
         let main_task = spawn(async move {
-            for connection in tcp_listener.incoming() {
-                match connection {
-                    Ok(client) => {
-                        spawn(Self::handler(client, router.clone()));
+            loop {
+                match tcp_listener.accept() {
+                    Ok((client, client_addr)) => {
+                        trace!(
+                            name,
+                            "A new client with the address `{client_addr}` connected."
+                        );
+
+                        let router = router.clone();
+                        spawn(Self::handler(client, router));
                     }
                     Err(error) => {
                         error!(name, "Could not accept an incoming connection. It will be ignored. Error: {error}");
                         continue;
                     }
                 }
+                // we need to sleep here to give the handlers a chance to execute
+                sleep(refresh_rate).await;
             }
         });
 
