@@ -2,8 +2,6 @@
 //! - [`impl_route_group`](crate::impl_route_group) -> Create a new group of routes.
 //! - [`impl_routes`](crate::impl_routes) -> Create new routes.
 
-// TODO add index to impl_routes!
-
 /// Use this macro to create a new group of routes. \
 /// To create new routes use the [`impl_routes`](crate::impl_routes) macro.
 ///
@@ -32,7 +30,8 @@
 /// .../mcserver/mod.rs
 /// ```
 /// impl_route_groups! {
-///     mcserver {  // This must be the name of the module. Otherwise, this module will be useless to other modules that use this macro.
+///     mcserver {  // This must be the name of the module. Otherwise, this module will be useless
+///                 // to other modules that use this macro.
 ///         info;
 ///         actions;
 ///     }
@@ -100,9 +99,11 @@ macro_rules! impl_route_group {
 /// ```
 /// impl_routes! {
 ///     info {
-///         index, get;     // Any function called indexed will be interpreted as the root route `/`.
+///         index, get;     // Any function called indexed will be interpreted as the
+///                         // root route `/`.
 ///         index, get, ":username/:password";
-///         get_log, get, ":mcserver";    // The second argument `get` can also be replaced by any other function from `axum::routing::*`.
+///         get_log, get, ":mcserver";    // The second argument `get` can also be replaced by any
+///                                       // other function from `axum::routing::*`.
 ///     }
 /// }
 /// ```

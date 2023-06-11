@@ -38,19 +38,25 @@ use tokio::{
 /// [one of the most popular HttpServers](https://docs.rs/hyper/0.14.26/hyper/server/struct.Server.html). But this does not immediately mean that you have to miss out on all
 /// of the features provided by [`axum`]. The solution is to do everything with a synchronous TcpListener.
 ///
-/// # Requirements
+/// # Additional info for use in embedded development
+///
+/// ## stack overflow in pthread
 ///
 /// Because this HttpServer uses async functions and the [`spawn`] function from tokio, you may get this error:
-/// ```bash
+///
+/// ```text
 /// ***ERROR*** A stack overflow in task pthread has been detected.
 /// ```
+///
 /// Fortunately, all you have to do is adjust the following value in your `sdkconfig.defaults` which should have been generated when you used
 /// [this ESP32 template](https://github.com/esp-rs/esp-idf-template):
+///
 /// ```text
-/// CONFIG_PTHREAD_TASK_STACK_SIZE_DEFAULT=10000    # 10000 has worked for my project so far but you can probably set it far lower
+/// CONFIG_PTHREAD_TASK_STACK_SIZE_DEFAULT=10000    # 10000 has worked for my project so far
+///                                                 # but you can probably set it far lower
 /// ```
 ///
-/// # Reducing binary size
+/// ## Reducing binary size
 ///
 /// When using this library and other libraries, you may encounter another problem: you run out of memory. To fix this, you need to change some compiler settings. For that, I
 /// would suggest to have a look at [`this`](https://github.com/johnthagen/min-sized-rust) and [`this guide`](https://docs.rust-embedded.org/book/unsorted/speed-vs-size.html).
@@ -63,7 +69,8 @@ use tokio::{
 /// impl_routes! {
 ///     router {
 ///         get_list, get;  // The route will be called get_list and will only accept get requests.
-///                         // For more details on the implementation of this route handler, see this macro documentation.
+///                         // For more details on the implementation of this route handler, see
+///                         // this macro documentation.
 ///     }
 /// }
 /// ```

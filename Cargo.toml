@@ -1,6 +1,6 @@
 [package]
 name = "goohttp"
-version = "0.1.0"
+version = "0.1.1"
 description = "Http-server for embedded systems and macros for easy axum routes."
 authors = ["Gooxey <dennis.tiderko@gmail.com>"]
 edition = "2021"
@@ -8,6 +8,7 @@ license = "MIT"
 readme = "README.md"
 publish = true
 repository = "https://github.com/Gooxey/goohttp.git"
+categories = ["embedded", "network-programming", "web-programming::http-server"]
 
 [features]
 default = []
