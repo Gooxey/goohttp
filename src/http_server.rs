@@ -77,7 +77,7 @@ use tokio::{
 /// First, you will need a [`Router`]. You can use the macros from this library:
 /// ```
 /// // In this example, we will create a simple router with one route
-/// impl_routes! {
+/// router! {
 ///     router {
 ///         get_list, get;  // The route will be called get_list and will only accept get requests.
 ///                         // For more details on the implementation of this route handler, see

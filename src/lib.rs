@@ -1,10 +1,15 @@
 #![doc = include_str!("../README.md")]
-#![warn(missing_docs)]
-#![warn(clippy::missing_docs_in_private_items)]
-#![warn(clippy::unwrap_used)]
-#![warn(unreachable_pub)]
+#![cfg_attr(docsrs, feature(doc_cfg))]
+#![allow(clippy::needless_doctest_main)]
+#![warn(
+    missing_docs,
+    clippy::missing_docs_in_private_items,
+    clippy::unwrap_used
+)]
 
-pub mod axum;
+pub use axum;
+
+#[cfg_attr(docsrs, doc(cfg(feature = "esp")))]
 #[cfg(feature = "esp")]
 pub mod http_server;
 mod macros;
