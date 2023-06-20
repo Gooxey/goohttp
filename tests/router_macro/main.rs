@@ -23,6 +23,23 @@ async fn main() {
         "index"
     );
 
+    let remaining_response = website
+        .call(
+            Request::get("/this_route_does_not_exist")
+                .body(Body::empty())
+                .unwrap(),
+        )
+        .await
+        .unwrap()
+        .data()
+        .await
+        .unwrap()
+        .unwrap();
+    assert_eq!(
+        std::str::from_utf8(&remaining_response.to_vec()).unwrap(),
+        "called remaining with the route `this_route_does_not_exist`"
+    );
+
     let say_hello_response = website
         .call(
             Request::get("/api/say_hello/MySuperAwesomeMCManageClient")
@@ -50,6 +67,7 @@ async fn main() {
 router! {
     website {
         index, get;
+        remaining, get;
         api
     }
 }
