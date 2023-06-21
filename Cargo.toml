@@ -1,6 +1,6 @@
 [package]
 name = "goohttp"
-version = "0.4.0"
+version = "0.4.1"
 description = "An embedded, axum-compatible HTTP server and macros"
 authors = ["Gooxey <dennis.tiderko@gmail.com>"]
 edition = "2021"
