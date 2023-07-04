@@ -21,7 +21,7 @@ macro_rules! __router_internally {
                 if std::stringify!($route) == "index" {
                     route = "/".to_string();
                 } else if std::stringify!($route) == "remaining" {
-                    route = "/:remaining".to_string();
+                    route = "/*remaining".to_string();
                 } else {
                     route = format!("/{}", std::stringify!($route));
                 }
@@ -44,7 +44,7 @@ macro_rules! __router_internally {
             & {
                 let route;
                 if std::stringify!($group) == "remaining" {
-                    route = "/:remaining".to_string();
+                    route = "/*remaining".to_string();
                 } else {
                     route = format!("/{}", std::stringify!($group));
                 }

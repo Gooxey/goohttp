@@ -1,6 +1,6 @@
 [package]
 name = "goohttp"
-version = "0.4.1"
+version = "0.4.2"
 description = "An embedded, axum-compatible HTTP server and macros"
 authors = ["Gooxey <dennis.tiderko@gmail.com>"]
 edition = "2021"
@@ -21,11 +21,11 @@ esp = ["dep:goolog", "dep:http", "dep:hyper", "dep:tokio"]
 
 [dependencies]
 axum = { version = "0.6.18", default-features = false }
-goolog = { version = "0.4.0", default-features = false, features = ["esp"], optional = true }
+goolog = { version = "0.7.0", default-features = false, features = ["esp"], optional = true }
 http = { version = "0.2.9", optional = true }
-hyper = { version = "0.14.26", optional = true }
-tokio = { version = "1.28.2", features = ["rt", "time"], optional = true }
+hyper = { version = "0.14.27", optional = true }
+tokio = { version = "1.29.1", features = ["rt", "time"], optional = true }
 
 [dev-dependencies]
-tokio = { version = "1.28.2", features = ["full"] }
-hyper = { version = "0.14.26" }
+tokio = { version = "1.29.1", features = ["full"] }
+hyper = { version = "0.14.27" }
